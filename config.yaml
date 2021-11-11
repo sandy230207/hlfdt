@@ -1,0 +1,112 @@
+Channels:
+  - Name: mychannel
+    Policies:
+      - Name: Readers
+        Policy: "ANY Readers"
+      - Name: Writers
+        Policy: "ANY Writers"
+      - Name: Admins
+        Policy: "MAJORITY Admins"
+      - Name: Endorsement
+        Policy: "MAJORITY Endorsement"
+      - Name: LifecycleEndorsement
+        Policy: "ANY Endorsement"
+Chaincodes:
+  - Name: basic
+    Language: golang
+    Path: ./asset-transfer-basic/chaincode/transaction.go
+    Channels:
+      - mychannel
+  - Name: utxo
+    Language: javascript
+    Path: ./utxo/chaincode/transaction.js
+    Channels:
+      - mychannel
+Organizations:
+  - Name: org1
+    Type: peerOrg
+    EndorsingPeers:
+    - Name: peer1.org1.example.com
+      Address: 127.0.0.1
+      Port: 7051
+      DBPort: 7052
+    - Name: peer2.org1.example.com
+      Address: 127.0.0.1
+      Port: 7151
+      DBPort: 7152
+    - Name: peer3.org1.example.com
+      Address: 127.0.0.1
+      Port: 7251
+      DBPort: 7252
+    Policies:
+      - Name: Readers
+        Policy: OR(org1.admin, org1.peer, org1.client)
+      - Name: Writers
+        Policy: OR(org1.admin, org1.client)
+      - Name: Admins
+        Policy: OR(org1.admin)
+      - Name: Endorsement
+        Policy: OR(org1.peer)
+    Channels:
+      - mychannel
+  - Name: org2
+    Type: peerOrg
+    EndorsingPeers:
+    - Name: peer1.org2.example.com
+      Address: 127.0.0.1
+      Port: 9051
+      DBPort: 9052
+    - Name: peer2.org2.example.com
+      Address: 127.0.0.1
+      Port: 9151
+      DBPort: 9152
+      ChaincodePort: 9153
+    - Name: peer3.org2.example.com
+      Address: 127.0.0.1
+      Port: 9251
+      DBPort: 9252
+    Policies:
+      - Name: Readers
+        Policy: OR(org2.peer, org2.client, org2.admin)
+      - Name: Writers
+        Policy: OR(org2.admin, org2.client)
+      - Name: Admins
+        Policy: OR(org2.admin)
+      - Name: Endorsement
+        Policy: OR(org2.peer)
+    Channels:
+      - mychannel
+  - Name: orderOrg
+    Type: orderOrg
+    BatchTimeout: 2
+    BatchSize:
+      MaxMessageCount: 500
+      AbsoluteMaxBytes: 10
+      PreferredMaxBytes: 2
+    Peers:
+    - Name: orderer.example.com
+      Address: 127.0.0.1
+      Port: 7050
+    Policies:
+      - Name: Readers
+        Policy: OR(orderOrg.member)
+      - Name: Writers
+        Policy: OR(orderOrg.member)
+      - Name: Admins
+        Policy: OR(orderOrg.admin)
+CertificateAuthorities:
+  - Name: ca.org1.example.com
+    Address: 127.0.0.1
+    Port: 7054
+    Organizations:
+      - org1
+  - Name: ca.org2.example.com
+    Address: 127.0.0.1
+    Port: 8054
+    Organizations:
+      - org2
+  - Name: ca.orderer.example.com
+    Address: 127.0.0.1
+    Port: 9054
+    Organizations:
+      - orderOrg

@@ -1,0 +1,35 @@
+---
+name: test-network-${ORG_NAME}
+version: 1.0.0
+client:
+  organization: ${ORG_NAME}
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  ${ORG_NAME}:
+    mspid: ${ORG_NAME}
+    peers:
+    - ${PEER_NAME}
+    certificateAuthorities:
+    - ${CA_PEER_NAME}
+peers:
+  ${PEER_NAME}:
+    url: grpcs://localhost:${PEER_PORT}
+    tlsCACerts:
+      pem: |
+          ${PEER_PEM}
+    grpcOptions:
+      ssl-target-name-override: ${PEER_NAME}
+      hostnameOverride: ${PEER_NAME}
+certificateAuthorities:
+  ${CA_PEER_NAME}:
+    url: https://localhost:${CA_PEER_PORT}
+    caName: ${CA_PEER_NAME}
+    tlsCACerts:
+      pem: 
+        - |
+          ${CA_PEM}
+    httpOptions:
+      verify: false
