@@ -1,0 +1,7 @@
+Chaincodes:
+  - Name: erc20
+    Language: golang
+    Path: /erc20/chaincode/transaction.go
+  - Name: utxo
+    Language: javascript
+    Path: /utxo/chaincode/transaction.js

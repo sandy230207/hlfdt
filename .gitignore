@@ -1,0 +1,11 @@
+.DS_Store
+bin/
+channel-artifacts/
+config/
+confgitx/
+docker/
+organizations/
+scripts/
+system-genesis-block/
+token-utxo/
+network.sh

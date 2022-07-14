@@ -1,0 +1,168 @@
+Channels:
+  - Name: firstchannel # can only contains lowercase letter, do not use number, uppercase letter, and the symbol
+    Policies:
+      - Name: Readers
+        Policy: "ANY Readers"
+      - Name: Writers
+        Policy: "ANY Writers"
+      - Name: Admins
+        Policy: "MAJORITY Admins"
+      - Name: Endorsement
+        Policy: "MAJORITY Endorsement"
+      - Name: LifecycleEndorsement
+        Policy: "outof(1, Org1.peer, Org2.peer)"
+  # - Name: Channel2
+  #   Policies:
+  #     - Name: Readers
+  #       Policy: "ANY Readers"
+  #     - Name: Writers
+  #       Policy: "ANY Writers"
+  #     - Name: Admins
+  #       Policy: "MAJORITY Admins"
+  #     - Name: Endorsement
+  #       Policy: "MAJORITY Endorsement"
+  #     - Name: LifecycleEndorsement
+  #       Policy: "MAJORITY Endorsement"
+Chaincodes:
+  - Name: erc20
+    Language: golang
+    Path: /erc20/chaincode/transaction.go
+  - Name: utxo
+    Language: javascript
+    Path: /utxo/chaincode/transaction.js
+Organizations:
+  - Name: Org1
+    Type: peerOrg
+    CommittingPeers: 
+    - Name: peer1.org1.com #organizations/peerOrganizations/"org1.com"/msp
+      Address: 127.0.0.1
+      Port: 7051
+      DBPort: 7052
+    - Name: peer2.org1.com
+      Address: 127.0.0.1
+      Port: 8051
+      DBPort: 8052
+    EndorsingPeers:
+    - Name: peer3.org1.com
+      Address: 127.0.0.1
+      Port: 9051
+      DBPort: 9052
+      ChaincodePort: 9053
+      Chaincodes:
+        - erc20
+        - utxo
+    - Name: peer4.org1.com
+      Address: 127.0.0.1
+      Port: 10051
+      DBPort: 10052
+      ChaincodePort: 10053
+      Chaincodes:
+        - erc20
+    Policies:
+      - Name: Readers
+        Policy: "Outof(1, Org1.peer, Org1.client, Org1.admin)"
+      - Name: Writers
+        Policy: "OR(Org1.admin, Org1.client)"
+      - Name: Admins
+        Policy: "OR(Org1.admin)"
+      - Name: Endorsement
+        Policy: "OR(Org1.peer)"
+    Channels:
+      - firstchannel
+      # - Channel2
+  - Name: Org2
+    Type: peerOrg
+    CommittingPeers: 
+    - Name: peer1.org2.com
+      Address: 127.0.0.1
+      Port: 11051
+      DBPort: 11052
+    EndorsingPeers:
+    - Name: peer2.org2.com
+      Address: 127.0.0.1
+      Port: 12051
+      DBPort: 12052
+      ChaincodePort: 12053
+      Chaincodes:
+        - erc20
+    - Name: peer3.org2.com
+      Address: 127.0.0.1
+      Port: 13051
+      DBPort: 13052
+      ChaincodePort: 13053
+      Chaincodes:
+        - erc20
+    Policies:
+      - Name: Readers
+        Policy: "OR(Org2.peer, Org2.client, Org2.admin)"
+      - Name: Writers
+        Policy: "OR(Org2.admin, Org2.client)"
+      - Name: Admins
+        Policy: "OR(Org2.admin)"
+      - Name: Endorsement
+        Policy: "OR(Org2.peer)"
+    Channels:
+      - firstchannel
+  # - Name: Org3
+  #   Type: peerOrg
+  #   CommittingPeers: 
+  #   - Name: peer1.org3.com
+  #     Address: 140.119.125.30
+  #     Port: 7051
+  #   EndorsingPeers:
+  #   - Name: peer2.org3.com
+  #     Address: 140.119.125.35
+  #     Port: 7051
+  #     Chaincodes:
+  #       - utxo
+  #   Policies:
+  #     - Name: Readers
+  #       Policy: "OR(Org3.peer, Org3.client, Org3.admin)"
+  #     - Name: Writers
+  #       Policy: "OR(Org3.admin, Org3.client)"
+  #     - Name: Admins
+  #       Policy: "OR(Org3.admin)"
+  #     - Name: Endorsement
+  #       Policy: "OR(Org3.peer)"
+  #   Channels:
+  #     - Channel2
+  - Name: OrderOrg
+    Type: orderOrg
+    # ConsensusType: Raft
+    BatchTimeout: 2 # Unit: s
+    BatchSize:
+      MaxMessageCount: 500
+      AbsoluteMaxBytes: 10 # Unit: MB
+      PreferredMaxBytes: 2 # Unit: KB
+    Peers:
+    - Name: orderer1.orderorg.com
+      Address: 127.0.0.1
+      Port: 6050
+    - Name: orderer2.orderorg.com
+      Address: 127.0.0.1
+      Port: 6051
+    Policies:
+      - Name: Readers
+        Policy: "OR(OrderOrg.member)" #要檢查名稱"OrderOrg"
+      - Name: Writers
+        Policy: "OR(OrderOrg.member)"
+      - Name: Admins
+        Policy: "OR(OrderOrg.admin)"
+CertificateAuthorities:
+  - Name: ca.org1.com
+    Address: 127.0.0.1
+    Port: 5050
+    Organizations:
+      - Org1
+      # - Org3
+      # - OrderOrg
+  - Name: ca.org2.com
+    Address: 127.0.0.1
+    Port: 5051
+    Organizations:
+      - Org2
+  - Name: ca.orderorg.com
+    Address: 127.0.0.1
+    Port: 5052
+    Organizations:
+      - OrderOrg

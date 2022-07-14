@@ -1,0 +1,35 @@
+Organizations:
+  - Name: Org4
+    Type: peerOrg
+    CommittingPeers: 
+    - Name: peer1.org4.com
+      Address: 140.119.133.221
+      Port: 7051
+    - Name: peer2.org4.com
+      Address: 140.119.133.222
+      Port: 7051
+    EndorsingPeers:
+    - Name: peer3.org4.com
+      Address: 140.119.133.221
+      Port: 7052
+      Chaincodes:
+      - erc20
+      - utxo
+    - Name: peer4.org4.com
+      Address: 140.119.133.222
+      Port: 7052
+      Chaincodes:
+      - erc20
+      - utxo
+    Policies:
+      - Name: Readers
+        Policy: "OR(Org4.peer, Org4.client, Org4.admin)"
+      - Name: Writers
+        Policy: "OR(Org4.admin, Org4.client)"
+      - Name: Admins
+        Policy: "OR(Org4.admin)"
+      - Name: Endorsement
+        Policy: "OR(Org4.peer)"
+    Channels:
+    - Channel1
+    - Channel2
