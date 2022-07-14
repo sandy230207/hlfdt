@@ -158,17 +158,6 @@ function createChannel() {
 
 `
 
-const deployCC = `
-function deployCC() {
-  ./scripts/deployCC.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
-  
-  if [ $? -ne 0 ]; then
-    fatalln "Deploying chaincode failed"
-  fi
-}
-
-`
-
 const networkDown = `
 function networkDown() {
   docker-compose -f $COMPOSE_FILE_BASE -f $COMPOSE_FILE_COUCH -f $COMPOSE_FILE_CA down --volumes --remove-orphans
@@ -180,12 +169,15 @@ function networkDown() {
 
 `
 
-const envVar = `
+const envVar1 = `
 OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')" | awk '{print tolower($0)}')
 CRYPTO="cryptogen"
 MAX_RETRY=5
 CLI_DELAY=3
-CHANNEL_NAME="mychannel"
+
+`
+
+const envVar2 = `
 CC_NAME="NA"
 CC_SRC_PATH="NA"
 CC_END_POLICY="NA"
@@ -371,7 +363,16 @@ func GenerateNetwork(conf *config.Config) (string, error) {
 
 	res = res + createChannel
 
-	res = res + deployCC
+	res = res + "function deployCC() {\n"
+	for _, cc := range conf.Chaincodes {
+		for _, channel := range cc.Channels {
+			res = res + "  ./scripts/deployCC.sh " + channel + " " + cc.Name + " " + cc.Path + " " + cc.Language + " $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE\n"
+			res = res + "  if [ $? -ne 0 ]; then\n"
+			res = res + "    fatalln \"Deploying chaincode failed\"\n"
+			res = res + "  fi\n\n"
+		}
+	}
+	res = res + "}\n\n"
 
 	res = res + networkDown
 	for _, org := range conf.Organizations {
@@ -381,8 +382,9 @@ func GenerateNetwork(conf *config.Config) (string, error) {
 	res = res + "  fi\n"
 	res = res + "}\n"
 
-	res = res + envVar
-
+	res = res + envVar1
+	res = res + "CHANNEL_NAME=" + conf.Channels[0].Name + "\n"
+	res = res + envVar2
 	res = res + parseMode
 	res = res + parseCreateChannelSubcommand
 	res = res + parseFlags
