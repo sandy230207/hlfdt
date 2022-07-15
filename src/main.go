@@ -9,6 +9,7 @@ import (
 	dockerNet "fabric-tool/src/docker-net"
 	serverconfig "fabric-tool/src/fabric-ca-server-config"
 	fabricNetwork "fabric-tool/src/fabric-network"
+	"fabric-tool/src/monitor"
 	"fabric-tool/src/utils"
 	"fmt"
 	"log"
@@ -21,7 +22,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name: "fabric-tool",
+		Name: "hlfdt",
 		Commands: []cli.Command{
 			{
 				Name:            "generate",
@@ -46,6 +47,19 @@ func main() {
 				Name:   "down",
 				Usage:  "Stop and clear Hyperledger Fabric Network",
 				Action: networkDown,
+			},
+			{
+				Name:            "ui",
+				Usage:           "Lookup the status of Hyperledger Fabric Network",
+				Action:          monitor.RunMonitor,
+				SkipFlagParsing: true,
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "port",
+						Value: "8888",
+						Usage: "The port number that monitor will use",
+					},
+				},
 			},
 		},
 	}

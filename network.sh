@@ -187,6 +187,29 @@ function networkDown() {
   fi
 }
 
+
+function monitor() {
+  FABRIC_CFG_PATH=$PWD/config/
+  HOST=org1.example.com
+  arrHost=(${HOST//./ })
+  ORG=${arrHost[0]}
+  PEER_NAME=peer1.org1.example.com
+  PEER_PORT=7051
+
+  export CORE_PEER_LOCALMSPID=${ORG}
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/${HOST}/peers/${PEER_NAME}/tls/ca.crt
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/${HOST}/users/Admin@${HOST}/msp
+  export CORE_PEER_ADDRESS=localhost:${PEER_PORT}
+  export CORE_PEER_TLS_ENABLED=true
+  if [ "$VERBOSE" == "true" ]; then
+    env | grep CORE
+  fi
+  
+  peer channel fetch newest $CHANNEL_NAME.block -c $CHANNEL_NAME >&log.txt
+  cat log.txt
+}
+
+
 OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')" | awk '{print tolower($0)}')
 CRYPTO="cryptogen"
 MAX_RETRY=5
@@ -327,6 +350,8 @@ elif [ "$MODE" == "restart" ]; then
   infoln "Restarting network"
 elif [ "$MODE" == "deployCC" ]; then
   infoln "deploying chaincode on channel '${CHANNEL_NAME}'"
+elif [ "$MODE" == "monitor" ]; then
+  infoln "get block height of '${CHANNEL_NAME}'"
 else
   printHelp
   exit 1
@@ -340,6 +365,8 @@ elif [ "${MODE}" == "deployCC" ]; then
   deployCC
 elif [ "${MODE}" == "down" ]; then
   networkDown
+elif [ "${MODE}" == "monitor" ]; then
+  monitor
 else
   printHelp
   exit 1
