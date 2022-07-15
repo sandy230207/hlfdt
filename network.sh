@@ -163,13 +163,12 @@ function createChannel() {
   scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE
 }
 
-
 function deployCC() {
-  ./scripts/deployCC.sh $CHANNEL_NAME $CC_NAME $CC_SRC_PATH $CC_SRC_LANGUAGE $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
-  
+  ./scripts/deployCC.sh mychannel basic ./testfile/asset-transfer-basic/chaincode-go go $CC_VERSION $CC_SEQUENCE $CC_INIT_FCN $CC_END_POLICY $CC_COLL_CONFIG $CLI_DELAY $MAX_RETRY $VERBOSE
   if [ $? -ne 0 ]; then
     fatalln "Deploying chaincode failed"
   fi
+
 }
 
 
@@ -192,7 +191,9 @@ OS_ARCH=$(echo "$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/mingw64_nt.*/wi
 CRYPTO="cryptogen"
 MAX_RETRY=5
 CLI_DELAY=3
-CHANNEL_NAME="mychannel"
+
+CHANNEL_NAME=mychannel
+
 CC_NAME="NA"
 CC_SRC_PATH="NA"
 CC_END_POLICY="NA"

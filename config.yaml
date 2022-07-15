@@ -13,13 +13,8 @@ Channels:
         Policy: "ANY Endorsement"
 Chaincodes:
   - Name: basic
-    Language: golang
-    Path: ./asset-transfer-basic/chaincode/transaction.go
-    Channels:
-      - mychannel
-  - Name: utxo
-    Language: javascript
-    Path: ./utxo/chaincode/transaction.js
+    Language: go
+    Path: ./testfile/asset-transfer-basic/chaincode-go
     Channels:
       - mychannel
 Organizations:
