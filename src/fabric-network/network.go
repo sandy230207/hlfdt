@@ -154,9 +154,6 @@ function createChannel() {
     infoln "Bringing up network"
     networkUp
   fi
-  
-  scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE
-}
 
 `
 
@@ -379,6 +376,10 @@ func GenerateNetwork(conf *config.Config) (string, error) {
 	res = res + networkUp
 
 	res = res + createChannel
+	for _, channel := range conf.Channels {
+		res = res + "  scripts/createChannel-" + channel.Name + ".sh " + channel.Name + " $CLI_DELAY $MAX_RETRY $VERBOSE\n"
+	}
+	res = res + "}\n\n"
 
 	res = res + "function deployCC() {\n"
 	for _, cc := range conf.Chaincodes {

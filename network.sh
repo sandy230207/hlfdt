@@ -159,8 +159,9 @@ function createChannel() {
     infoln "Bringing up network"
     networkUp
   fi
-  
-  scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE
+
+  scripts/createChannel-mychannel.sh mychannel $CLI_DELAY $MAX_RETRY $VERBOSE
+  scripts/createChannel-secondchannel.sh secondchannel $CLI_DELAY $MAX_RETRY $VERBOSE
 }
 
 function deployCC() {

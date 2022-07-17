@@ -93,7 +93,7 @@ setAnchorPeer() {
 `
 
 const createChannelMain = `
-FABRIC_CFG_PATH=${PWD}/configtx
+FABRIC_CFG_PATH=${PWD}/configtx-${CHANNEL_NAME}
 
 infoln "Generating channel create transaction '${CHANNEL_NAME}.tx'"
 createChannelTx
@@ -104,29 +104,12 @@ BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
 infoln "Creating channel ${CHANNEL_NAME}"
 `
 
-func GenerateCreateChannel(conf *config.Config) (string, error) {
+func GenerateCreateChannel(conf *config.Config, channelName string) (string, error) {
 	res := createChannelPreImport
 	res = res + createChannelTx
-	for _, org := range conf.Organizations {
-		if org.Type == "peerOrg" {
-			res = res + "createChannel() {\n"
-			res = res + "  setGlobals "
-			if len(org.EndorsingPeers) > 0 {
-				host, err := utils.ExtractHost(org.EndorsingPeers[0].Name, 1)
-				if err != nil {
-					return res, fmt.Errorf("error occur in extracting host: %v", err)
-				}
-				res = res + host + " " + org.EndorsingPeers[0].Name + " " + org.EndorsingPeers[0].Port
-			} else {
-				host, err := utils.ExtractHost(org.CommittingPeers[0].Name, 1)
-				if err != nil {
-					return res, fmt.Errorf("error occur in extracting host: %v", err)
-				}
-				res = res + host + " " + org.CommittingPeers[0].Name + " " + org.CommittingPeers[0].Port
-			}
-			break
-		}
-	}
+
+	res = res + "createChannel() {\n"
+	res = res + "  setGlobals $1 $2 $3\n"
 	res = res + createChannel1
 	for _, org := range conf.Organizations {
 		if org.Type == "orderOrg" {
@@ -139,66 +122,76 @@ func GenerateCreateChannel(conf *config.Config) (string, error) {
 	res = res + setAnchorPeer
 	res = res + createChannelMain
 	for _, org := range conf.Organizations {
-		if org.Type == "peerOrg" {
-			peers := org.CommittingPeers
-			if len(peers) == 0 {
-				peers = org.EndorsingPeers
+		isChannelCreated := false
+		for _, channel := range org.Channels {
+			if org.Type == "peerOrg" && channel == channelName && !isChannelCreated {
+				peers := org.CommittingPeers
+				if len(peers) == 0 {
+					peers = org.EndorsingPeers
+				}
+				host, err := utils.ExtractHost(peers[0].Name, 1)
+				if err != nil {
+					return res, fmt.Errorf("error occur in extracting host: %v", err)
+				}
+				res = res + "createChannel " + host + " " + peers[0].Name + " " + peers[0].Port + "\n\n"
+				isChannelCreated = true
 			}
-			host, err := utils.ExtractHost(peers[0].Name, 1)
-			if err != nil {
-				return res, fmt.Errorf("error occur in extracting host: %v", err)
-			}
-			res = res + "createChannel " + host + " " + peers[0].Name + " " + peers[0].Port + "\n\n"
+		}
+		if isChannelCreated {
 			break
 		}
 	}
 	res = res + "successln \"Channel '$CHANNEL_NAME' created\"\n\n"
 	for _, org := range conf.Organizations {
-		if org.Type == "peerOrg" {
-			for _, peer := range org.CommittingPeers {
-				host, err := utils.ExtractHost(peer.Name, 1)
-				if err != nil {
-					return res, fmt.Errorf("error occur in extracting host: %v", err)
+		for _, channel := range org.Channels {
+			if org.Type == "peerOrg" && channel == channelName {
+				for _, peer := range org.CommittingPeers {
+					host, err := utils.ExtractHost(peer.Name, 1)
+					if err != nil {
+						return res, fmt.Errorf("error occur in extracting host: %v", err)
+					}
+					res = res + "infoln \"Joining " + peer.Name + " to the channel...\"\n"
+					res = res + "joinChannel " + host + " " + peer.Name + " " + peer.Port + "\n\n"
 				}
-				res = res + "infoln \"Joining " + peer.Name + " to the channel...\"\n"
-				res = res + "joinChannel " + host + " " + peer.Name + " " + peer.Port + "\n\n"
-			}
-			for _, peer := range org.EndorsingPeers {
-				host, err := utils.ExtractHost(peer.Name, 1)
-				if err != nil {
-					return res, fmt.Errorf("error occur in extracting host: %v", err)
+				for _, peer := range org.EndorsingPeers {
+					host, err := utils.ExtractHost(peer.Name, 1)
+					if err != nil {
+						return res, fmt.Errorf("error occur in extracting host: %v", err)
+					}
+					res = res + "infoln \"Joining " + peer.Name + " to the channel...\"\n"
+					res = res + "joinChannel " + host + " " + peer.Name + " " + peer.Port + "\n\n"
 				}
-				res = res + "infoln \"Joining " + peer.Name + " to the channel...\"\n"
-				res = res + "joinChannel " + host + " " + peer.Name + " " + peer.Port + "\n\n"
 			}
 		}
 	}
 	for _, org := range conf.Organizations {
-		if org.Type == "peerOrg" {
-			isAnchorPeerBeSet := false
-			for _, peer := range org.CommittingPeers {
-				if isAnchorPeerBeSet {
-					break
+		for _, channel := range org.Channels {
+			if org.Type == "peerOrg" && channel == channelName {
+				isAnchorPeerBeSet := false
+				for _, peer := range org.CommittingPeers {
+					if isAnchorPeerBeSet {
+						break
+					}
+					host, err := utils.ExtractHost(peer.Name, 1)
+					if err != nil {
+						return res, fmt.Errorf("error occur in extracting host: %v", err)
+					}
+					res = res + "infoln \"Setting anchor peer for " + org.Name + "...\"\n"
+					res = res + "setAnchorPeer " + host + " " + peer.Name + " " + peer.Port + "\n\n"
+					isAnchorPeerBeSet = true
 				}
-				host, err := utils.ExtractHost(peer.Name, 1)
-				if err != nil {
-					return res, fmt.Errorf("error occur in extracting host: %v", err)
+				for _, peer := range org.EndorsingPeers {
+					if isAnchorPeerBeSet {
+						break
+					}
+					host, err := utils.ExtractHost(peer.Name, 1)
+					if err != nil {
+						return res, fmt.Errorf("error occur in extracting host: %v", err)
+					}
+					res = res + "infoln \"Setting anchor peer for " + org.Name + "...\"\n"
+					res = res + "setAnchorPeer " + host + " " + peer.Name + " " + peer.Port + "\n\n"
+					isAnchorPeerBeSet = true
 				}
-				res = res + "infoln \"Setting anchor peer for " + org.Name + "...\"\n"
-				res = res + "setAnchorPeer " + host + " " + peer.Name + " " + peer.Port + "\n\n"
-				isAnchorPeerBeSet = true
-			}
-			for _, peer := range org.EndorsingPeers {
-				if isAnchorPeerBeSet {
-					break
-				}
-				host, err := utils.ExtractHost(peer.Name, 1)
-				if err != nil {
-					return res, fmt.Errorf("error occur in extracting host: %v", err)
-				}
-				res = res + "infoln \"Setting anchor peer for " + org.Name + "...\"\n"
-				res = res + "setAnchorPeer " + host + " " + peer.Name + " " + peer.Port + "\n\n"
-				isAnchorPeerBeSet = true
 			}
 		}
 	}

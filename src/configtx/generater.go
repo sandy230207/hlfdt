@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func ConvertConf(conf *config.Config) (Config, error) {
+func ConvertConf(conf *config.Config, channelName string) (Config, error) {
 	capability := Capability{V2_0: true}
 	capabilities := Capabilities{
 		Channel:     capability,
@@ -116,24 +116,29 @@ func ConvertConf(conf *config.Config) (Config, error) {
 				AbsoluteMaxBytes:  strconv.Itoa(org.BatchSize.AbsoluteMaxBytes) + "MB",
 				PreferredMaxBytes: strconv.Itoa(org.BatchSize.PreferredMaxBytes) + "KB",
 			}
-		} else {
-			endpoints := []string{}
-			for _, peer := range org.CommittingPeers {
-				endpoints = append(endpoints, peer.Name+":"+peer.Port)
+		} else if org.Type == "peerOrg" {
+			for _, channel := range org.Channels {
+				if channel == channelName {
+					endpoints := []string{}
+					for _, peer := range org.CommittingPeers {
+						endpoints = append(endpoints, peer.Name+":"+peer.Port)
+					}
+					for _, peer := range org.EndorsingPeers {
+						endpoints = append(endpoints, peer.Name+":"+peer.Port)
+					}
+					orghost, err := utils.ExtractHost(endpoints[0], 2)
+					if err != nil {
+						return Config{}, fmt.Errorf("error occur in extracting host: %v", err)
+					}
+					peerOrgs = append(peerOrgs, Organization{
+						Name:     org.Name,
+						ID:       org.Name,
+						MSPDir:   "../organizations/peerOrganizations/" + orghost + "/msp",
+						Policies: policies,
+					})
+				}
 			}
-			for _, peer := range org.EndorsingPeers {
-				endpoints = append(endpoints, peer.Name+":"+peer.Port)
-			}
-			orghost, err := utils.ExtractHost(endpoints[0], 2)
-			if err != nil {
-				return Config{}, fmt.Errorf("error occur in extracting host: %v", err)
-			}
-			peerOrgs = append(peerOrgs, Organization{
-				Name:     org.Name,
-				ID:       org.Name,
-				MSPDir:   "../organizations/peerOrganizations/" + orghost + "/msp",
-				Policies: policies,
-			})
+
 		}
 	}
 	orgs = append(orgs, peerOrgs...)
