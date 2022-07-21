@@ -158,10 +158,7 @@ func generate(c *cli.Context) error {
 			return err
 		}
 		fmt.Println("Generating configtx.yaml...")
-		err = os.Mkdir("./configtx-"+channel.Name, 0777)
-		if err != nil {
-			return err
-		}
+		_ = os.Mkdir("./configtx-"+channel.Name, 0777)
 		err = utils.WriteYaml(txConf, "./configtx-"+channel.Name+"/configtx.yaml")
 		if err != nil {
 			return err

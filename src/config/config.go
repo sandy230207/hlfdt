@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -34,6 +35,14 @@ func CheckConf(conf *Config) (*Config, error) {
 		} else {
 			existChannels[v.Name] = true
 		}
+		reg, err := regexp.Compile("[^a-z]+")
+		if err != nil {
+			return nil, err
+		}
+		proccessedName := reg.ReplaceAllString(v.Name, "")
+		if v.Name != proccessedName {
+			return nil, fmt.Errorf("Channels: Channel name '%v' should only comprise lowercase alphabet.", v.Name)
+		}
 		if err := checkPolicy("Channel", v.Policies); err != nil {
 			return nil, fmt.Errorf("Channels '%v': %w", v.Name, err)
 		}
@@ -48,9 +57,17 @@ func CheckConf(conf *Config) (*Config, error) {
 			return nil, fmt.Errorf("Chaincode name cannot be empty.")
 		}
 		if existChaincodes[v.Name] {
-			return nil, fmt.Errorf("Channels: Duplicate chaincode name '%v'.", v.Name)
+			return nil, fmt.Errorf("Chaincode: Duplicate chaincode name '%v'.", v.Name)
 		} else {
 			existChaincodes[v.Name] = true
+		}
+		reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+		if err != nil {
+			return nil, err
+		}
+		proccessedName := reg.ReplaceAllString(v.Name, "")
+		if v.Name != proccessedName {
+			return nil, fmt.Errorf("Chaincode: Chaincode name '%v' should only comprise number, alphabet.", v.Name)
 		}
 		if v.Language == "" { //RE
 			return nil, fmt.Errorf("Chaincode language cannot be empty.")
@@ -69,6 +86,14 @@ func CheckConf(conf *Config) (*Config, error) {
 			return nil, fmt.Errorf("Organizations: Duplicate organization name '%v'.", v.Name)
 		} else {
 			existOrganizations[v.Name] = true
+		}
+		reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+		if err != nil {
+			return nil, err
+		}
+		proccessedName := reg.ReplaceAllString(v.Name, "")
+		if v.Name != proccessedName {
+			return nil, fmt.Errorf("Organizations: Organization name '%v' should only comprise number, alphabet.", v.Name)
 		}
 		if v.Type == "" {
 			return nil, fmt.Errorf("Organization '%v': Organization type cannot be empty.", v.Name)
@@ -132,6 +157,14 @@ func CheckConf(conf *Config) (*Config, error) {
 		} else {
 			existCertificateAuthorities[v.Name] = true
 		}
+		reg, err := regexp.Compile("[^a-z0-9.]+")
+		if err != nil {
+			return nil, err
+		}
+		proccessedName := reg.ReplaceAllString(v.Name, "")
+		if v.Name != proccessedName {
+			return nil, fmt.Errorf("CertificateAuthorities: CA name '%v' should only comprise number, alphabet and dot.", v.Name)
+		}
 		if v.Address == "" {
 			return nil, fmt.Errorf("CertificateAuthorities: The address of certificate authority, '%v', cannot be empty.", v.Name)
 		}
@@ -183,6 +216,14 @@ func checkPeer(orgType string, peerType string, peers []Peer) error {
 			return fmt.Errorf("Duplicate peer name '%v'.", peer.Name)
 		} else {
 			existPeers[peer.Name] = true
+		}
+		reg, err := regexp.Compile("[^a-z0-9.]+")
+		if err != nil {
+			return err
+		}
+		proccessedName := reg.ReplaceAllString(peer.Name, "")
+		if peer.Name != proccessedName {
+			return fmt.Errorf("Peer name '%v' should only comprise number, alphabet and dot.", peer.Name)
 		}
 		if peer.Address == "" {
 			return fmt.Errorf("Peer address cannot be empty.")
@@ -240,6 +281,14 @@ func checkPolicy(level string, policies []Policy) error {
 	for _, policy := range policies {
 		if policy.Name == "" {
 			return fmt.Errorf("Policy name cannot be empty.")
+		}
+		reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+		if err != nil {
+			return err
+		}
+		proccessedName := reg.ReplaceAllString(policy.Name, "")
+		if policy.Name != proccessedName {
+			return fmt.Errorf("Policy name '%v' should only comprise number and alphabet.", policy.Name)
 		}
 		if existPolicies[policy.Name] {
 			return fmt.Errorf("Duplicate policy name '%v'.", policy.Name)
