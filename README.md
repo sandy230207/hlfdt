@@ -1,5 +1,22 @@
 # hlfdt
 
+<!-- TOC -->
+- [hlfdt](#hlfdt)
+  - [如何建置可執行檔](#如何建置可執行檔)
+  - [安裝程式庫](#安裝程式庫)
+  - [指令](#指令)
+    - [檢查並產生所需配置檔與部署腳本](#檢查並產生所需配置檔與部署腳本)
+    - [創建與啟動 HLF 網路](#創建與啟動-hlf-網路)
+    - [停止與清除 HLF 網路](#停止與清除-hlf-網路)
+    - [啟動可監控 HLF 網路的 UI](#啟動可監控-hlf-網路的-ui)
+  - [hlfdt 配置檔](#hlfdt-配置檔)
+    - [Channels](#channels)
+    - [Chaincodes](#chaincodes)
+    - [Organizations](#organizations)
+    - [CertificateAuthorities](#certificateauthorities)
+  - [自動生成之配置檔與腳本介紹](#自動生成之配置檔與腳本介紹)
+  - [檔案目錄](#檔案目錄)
+
 ## 如何建置可執行檔
 ```shell=
 go build src/main.go
@@ -125,7 +142,7 @@ go run src/main.go ui --port 8000
 ## 檔案目錄
 ```
 ├── README.md
-├── bin
+├── bin #使用工具
 │   ├── configtxgen
 │   ├── configtxlator
 │   ├── cryptogen
@@ -135,18 +152,18 @@ go run src/main.go ui --port 8000
 │   ├── idemixgen
 │   ├── orderer
 │   └── peer
-├── config
+├── config #通道配置文件
 │   ├── configtx.yaml
 │   ├── core.yaml
 │   └── orderer.yaml
 ├── config.yaml
-├── configtx
+├── configtx #生成之通道配置文件
 │   └── configtx.yaml
-├── configtx-mychannel
+├── configtx-mychannel #生成之通道配置文件
 │   └── configtx.yaml
-├── configtx-secondchannel
+├── configtx-secondchannel #生成之通道配置文件
 │   └── configtx.yaml
-├── doc
+├── doc # Readme 使用檔案
 │   └── commands.png
 ├── docker
 │   ├── docker-compose-ca.yaml
@@ -154,10 +171,10 @@ go run src/main.go ui --port 8000
 │   └── docker-compose-test-net.yaml
 ├── go.mod
 ├── go.sum
-├── hlfdt
+├── hlfdt #工具的可執行檔
 ├── mychannel.block
 ├── network.sh
-├── organizations
+├── organizations #生成之組織配置文件
 │   ├── ccp-generate-original.sh
 │   ├── ccp-generate-script.sh
 │   ├── ccp-generate.sh
@@ -174,7 +191,7 @@ go run src/main.go ui --port 8000
 │   │   └── registerEnroll.sh
 │   └── template
 │       └── registerEnroll.sh
-├── scripts
+├── scripts #生成之腳本
 │   ├── configUpdate.sh
 │   ├── createChannel-mychannel.sh
 │   ├── createChannel-secondchannel.sh
@@ -184,7 +201,7 @@ go run src/main.go ui --port 8000
 │   ├── network-original.sh
 │   ├── setAnchorPeer.sh
 │   └── utils.sh
-├── src
+├── src #開發之程式碼
 │   ├── config
 │   │   ├── config.go
 │   │   └── model.go
@@ -222,7 +239,7 @@ go run src/main.go ui --port 8000
 │   │   └── monitor.go.orig
 │   └── utils
 │       └── utils.go
-└── testfile
+└── testfile #測試檔案
     ├── add-org4.yaml
     ├── asset-transfer-basic
     │   ├── application-go
