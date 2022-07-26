@@ -2,6 +2,8 @@ package fabricnetwork
 
 import (
 	"fabric-tool/src/config"
+	"fabric-tool/src/utils"
+	"fmt"
 )
 
 const createOrgs = `#!/bin/bash
@@ -152,9 +154,6 @@ function createChannel() {
     infoln "Bringing up network"
     networkUp
   fi
-  
-  scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE
-}
 
 `
 
@@ -167,6 +166,17 @@ function networkDown() {
     removeUnwantedImages
     docker run --rm -v $(pwd):/data busybox sh -c 'cd /data && rm -rf system-genesis-block/*.block organizations/peerOrganizations organizations/ordererOrganizations'
 
+`
+const monitor = `
+  export CORE_PEER_LOCALMSPID=${ORG}
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/${HOST}/peers/${PEER_NAME}/tls/ca.crt
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/${HOST}/users/Admin@${HOST}/msp
+  export CORE_PEER_ADDRESS=localhost:${PEER_PORT}
+  export CORE_PEER_TLS_ENABLED=true
+  if [ "$VERBOSE" == "true" ]; then
+    env | grep CORE
+  fi
+  
 `
 
 const envVar1 = `
@@ -320,6 +330,8 @@ elif [ "$MODE" == "restart" ]; then
   infoln "Restarting network"
 elif [ "$MODE" == "deployCC" ]; then
   infoln "deploying chaincode on channel '${CHANNEL_NAME}'"
+elif [ "$MODE" == "monitor" ]; then
+  infoln "get block height of '${CHANNEL_NAME}'"
 else
   printHelp
   exit 1
@@ -333,6 +345,8 @@ elif [ "${MODE}" == "deployCC" ]; then
   deployCC
 elif [ "${MODE}" == "down" ]; then
   networkDown
+elif [ "${MODE}" == "monitor" ]; then
+  monitor
 else
   printHelp
   exit 1
@@ -362,6 +376,10 @@ func GenerateNetwork(conf *config.Config) (string, error) {
 	res = res + networkUp
 
 	res = res + createChannel
+	for _, channel := range conf.Channels {
+		res = res + "  scripts/createChannel-" + channel.Name + ".sh " + channel.Name + " $CLI_DELAY $MAX_RETRY $VERBOSE\n"
+	}
+	res = res + "}\n\n"
 
 	res = res + "function deployCC() {\n"
 	for _, cc := range conf.Chaincodes {
@@ -380,7 +398,29 @@ func GenerateNetwork(conf *config.Config) (string, error) {
 	}
 	res = res + "    docker run --rm -v $(pwd):/data busybox sh -c 'cd /data && rm -rf channel-artifacts log.txt *.tar.gz'\n"
 	res = res + "  fi\n"
-	res = res + "}\n"
+	res = res + "}\n\n\n"
+
+	res = res + "function monitor() {\n"
+	res = res + "  FABRIC_CFG_PATH=$PWD/config/\n"
+
+	for _, org := range conf.Organizations {
+		if len(org.EndorsingPeers) > 0 {
+			host, err := utils.ExtractHost(org.EndorsingPeers[0].Name, 1)
+			if err != nil {
+				return res, fmt.Errorf("error occur in extracting host: %v", err)
+			}
+			res = res + "  HOST=" + host + "\n"
+			res = res + "  arrHost=(${HOST//./ })\n"
+			res = res + "  ORG=${arrHost[0]}\n"
+			res = res + "  PEER_NAME=" + org.EndorsingPeers[0].Name + "\n"
+			res = res + "  PEER_PORT=" + org.EndorsingPeers[0].Port + "\n"
+			break
+		}
+	}
+	res = res + monitor
+	res = res + "  peer channel fetch newest $CHANNEL_NAME.block -c $CHANNEL_NAME >&log.txt\n"
+	res = res + "  cat log.txt\n"
+	res = res + "}\n\n"
 
 	res = res + envVar1
 	res = res + "CHANNEL_NAME=" + conf.Channels[0].Name + "\n"

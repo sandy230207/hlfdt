@@ -55,7 +55,7 @@ func GenerateSetAnchorPeer(conf *config.Config) (string, error) {
 	res = res + "updateAnchorPeer() {\n"
 	for _, org := range conf.Organizations {
 		if org.Type == "orderOrg" {
-			res = res + "peer channel update -o " + org.Peers[0].Name + ":" + org.Peers[0].Port + " --ordererTLSHostnameOverride " + org.Peers[0].Name + " -c $CHANNEL_NAME -f ${CORE_PEER_LOCALMSPID}anchors.tx --tls --cafile $ORDERER_CA >&log.txt\n\n"
+			res = res + "  peer channel update -o " + org.Peers[0].Name + ":" + org.Peers[0].Port + " --ordererTLSHostnameOverride " + org.Peers[0].Name + " -c $CHANNEL_NAME -f ${CORE_PEER_LOCALMSPID}anchors.tx --tls --cafile $ORDERER_CA >&log.txt\n\n"
 			break
 		}
 	}

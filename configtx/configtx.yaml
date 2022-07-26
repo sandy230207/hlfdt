@@ -5,45 +5,45 @@ Organizations:
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('org1.admin', 'org1.peer', 'org1.client')"
+        Rule: """"""""OR('org1.admin', 'org1.peer', 'org1.client')""""""""
       Writers:
         Type: Signature
-        Rule: "OR('org1.admin', 'org1.client')"
+        Rule: """"""""OR('org1.admin', 'org1.client')""""""""
       Admins:
         Type: Signature
-        Rule: "OR('org1.admin')"
+        Rule: """"""""OR('org1.admin')""""""""
       Endorsement:
         Type: Signature
-        Rule: "OR('org1.peer')"
+        Rule: """"""""OR('org1.peer')""""""""
   - Name: org2
     ID: org2
     MSPDir: ../organizations/peerOrganizations/org2.example.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('org2.peer', 'org2.client', 'org2.admin')"
+        Rule: """"""""OR('org2.peer', 'org2.client', 'org2.admin')""""""""
       Writers:
         Type: Signature
-        Rule: "OR('org2.admin', 'org2.client')"
+        Rule: """"""""OR('org2.admin', 'org2.client')""""""""
       Admins:
         Type: Signature
-        Rule: "OR('org2.admin')"
+        Rule: """"""""OR('org2.admin')""""""""
       Endorsement:
         Type: Signature
-        Rule: "OR('org2.peer')"
+        Rule: """"""""OR('org2.peer')""""""""
   - Name: orderOrg
     ID: orderOrg
     MSPDir: ../organizations/ordererOrganizations/example.com/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('orderOrg.member')"
+        Rule: """"""""OR('orderOrg.member')""""""""
       Writers:
         Type: Signature
-        Rule: "OR('orderOrg.member')"
+        Rule: """"""""OR('orderOrg.member')""""""""
       Admins:
         Type: Signature
-        Rule: "OR('orderOrg.admin')"
+        Rule: """"""""OR('orderOrg.admin')""""""""
     OrdererEndpoints:
       - orderer.example.com:7050
 Capabilities:
@@ -59,19 +59,19 @@ Application:
   Policies:
     Readers:
       Type: ImplicitMeta
-      Rule: "ANY Readers"
+      Rule: """"""""ANY Readers""""""""
     Writers:
       Type: ImplicitMeta
-      Rule: "ANY Writers"
+      Rule: """"""""ANY Writers""""""""
     Admins:
       Type: ImplicitMeta
-      Rule: "MAJORITY Admins"
+      Rule: """"""""MAJORITY Admins""""""""
     Endorsement:
       Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
+      Rule: """"""""MAJORITY Endorsement""""""""
     LifecycleEndorsement:
       Type: ImplicitMeta
-      Rule: "ANY Endorsement"
+      Rule: """"""""ANY Endorsement""""""""
   Capabilities:
     V2_0: true
 Orderer:
@@ -94,27 +94,27 @@ Orderer:
   Policies:
     Readers:
       Type: ImplicitMeta
-      Rule: "ANY Readers"
+      Rule: """"""""ANY Readers""""""""
     Writers:
       Type: ImplicitMeta
-      Rule: "ANY Writers"
+      Rule: """"""""ANY Writers""""""""
     Admins:
       Type: ImplicitMeta
-      Rule: "MAJORITY Admins"
+      Rule: """"""""MAJORITY Admins""""""""
     BlockValidation:
       Type: ImplicitMeta
-      Rule: "ANY Writers"
+      Rule: """"""""ANY Writers""""""""
 Channel:
   Policies:
     Readers:
       Type: ImplicitMeta
-      Rule: "ANY Readers"
+      Rule: """"""""ANY Readers""""""""
     Writers:
       Type: ImplicitMeta
-      Rule: "ANY Writers"
+      Rule: """"""""ANY Writers""""""""
     Admins:
       Type: ImplicitMeta
-      Rule: "MAJORITY Admins"
+      Rule: """"""""MAJORITY Admins""""""""
   Capabilities:
     V2_0: true
 Profiles:
@@ -122,13 +122,13 @@ Profiles:
     Policies:
       Readers:
         Type: ImplicitMeta
-        Rule: "ANY Readers"
+        Rule: """"""""ANY Readers""""""""
       Writers:
         Type: ImplicitMeta
-        Rule: "ANY Writers"
+        Rule: """"""""ANY Writers""""""""
       Admins:
         Type: ImplicitMeta
-        Rule: "MAJORITY Admins"
+        Rule: """"""""MAJORITY Admins""""""""
     Capabilities:
       V2_0: true
     Orderer:
@@ -149,16 +149,16 @@ Profiles:
       Policies:
         Readers:
           Type: ImplicitMeta
-          Rule: "ANY Readers"
+          Rule: """"""""ANY Readers""""""""
         Writers:
           Type: ImplicitMeta
-          Rule: "ANY Writers"
+          Rule: """"""""ANY Writers""""""""
         Admins:
           Type: ImplicitMeta
-          Rule: "MAJORITY Admins"
+          Rule: """"""""MAJORITY Admins""""""""
         BlockValidation:
           Type: ImplicitMeta
-          Rule: "ANY Writers"
+          Rule: """"""""ANY Writers""""""""
       Organizations:
         - Name: orderOrg
           ID: orderOrg
@@ -166,13 +166,13 @@ Profiles:
           Policies:
             Readers:
               Type: Signature
-              Rule: "OR('orderOrg.member')"
+              Rule: """"""""OR('orderOrg.member')""""""""
             Writers:
               Type: Signature
-              Rule: "OR('orderOrg.member')"
+              Rule: """"""""OR('orderOrg.member')""""""""
             Admins:
               Type: Signature
-              Rule: "OR('orderOrg.admin')"
+              Rule: """"""""OR('orderOrg.admin')""""""""
           OrdererEndpoints:
             - orderer.example.com:7050
       Capabilities:
@@ -186,44 +186,44 @@ Profiles:
             Policies:
               Readers:
                 Type: Signature
-                Rule: "OR('org1.admin', 'org1.peer', 'org1.client')"
+                Rule: """"""""OR('org1.admin', 'org1.peer', 'org1.client')""""""""
               Writers:
                 Type: Signature
-                Rule: "OR('org1.admin', 'org1.client')"
+                Rule: """"""""OR('org1.admin', 'org1.client')""""""""
               Admins:
                 Type: Signature
-                Rule: "OR('org1.admin')"
+                Rule: """"""""OR('org1.admin')""""""""
               Endorsement:
                 Type: Signature
-                Rule: "OR('org1.peer')"
+                Rule: """"""""OR('org1.peer')""""""""
           - Name: org2
             ID: org2
             MSPDir: ../organizations/peerOrganizations/org2.example.com/msp
             Policies:
               Readers:
                 Type: Signature
-                Rule: "OR('org2.peer', 'org2.client', 'org2.admin')"
+                Rule: """"""""OR('org2.peer', 'org2.client', 'org2.admin')""""""""
               Writers:
                 Type: Signature
-                Rule: "OR('org2.admin', 'org2.client')"
+                Rule: """"""""OR('org2.admin', 'org2.client')""""""""
               Admins:
                 Type: Signature
-                Rule: "OR('org2.admin')"
+                Rule: """"""""OR('org2.admin')""""""""
               Endorsement:
                 Type: Signature
-                Rule: "OR('org2.peer')"
+                Rule: """"""""OR('org2.peer')""""""""
   OrgsChannel:
     Consortium: SampleConsortium
     Policies:
       Readers:
         Type: ImplicitMeta
-        Rule: "ANY Readers"
+        Rule: """"""""ANY Readers""""""""
       Writers:
         Type: ImplicitMeta
-        Rule: "ANY Writers"
+        Rule: """"""""ANY Writers""""""""
       Admins:
         Type: ImplicitMeta
-        Rule: "MAJORITY Admins"
+        Rule: """"""""MAJORITY Admins""""""""
     Capabilities:
       V2_0: true
     Application:
@@ -234,47 +234,47 @@ Profiles:
           Policies:
             Readers:
               Type: Signature
-              Rule: "OR('org1.admin', 'org1.peer', 'org1.client')"
+              Rule: """"""""OR('org1.admin', 'org1.peer', 'org1.client')""""""""
             Writers:
               Type: Signature
-              Rule: "OR('org1.admin', 'org1.client')"
+              Rule: """"""""OR('org1.admin', 'org1.client')""""""""
             Admins:
               Type: Signature
-              Rule: "OR('org1.admin')"
+              Rule: """"""""OR('org1.admin')""""""""
             Endorsement:
               Type: Signature
-              Rule: "OR('org1.peer')"
+              Rule: """"""""OR('org1.peer')""""""""
         - Name: org2
           ID: org2
           MSPDir: ../organizations/peerOrganizations/org2.example.com/msp
           Policies:
             Readers:
               Type: Signature
-              Rule: "OR('org2.peer', 'org2.client', 'org2.admin')"
+              Rule: """"""""OR('org2.peer', 'org2.client', 'org2.admin')""""""""
             Writers:
               Type: Signature
-              Rule: "OR('org2.admin', 'org2.client')"
+              Rule: """"""""OR('org2.admin', 'org2.client')""""""""
             Admins:
               Type: Signature
-              Rule: "OR('org2.admin')"
+              Rule: """"""""OR('org2.admin')""""""""
             Endorsement:
               Type: Signature
-              Rule: "OR('org2.peer')"
+              Rule: """"""""OR('org2.peer')""""""""
       Policies:
         Readers:
           Type: ImplicitMeta
-          Rule: "ANY Readers"
+          Rule: """"""""ANY Readers""""""""
         Writers:
           Type: ImplicitMeta
-          Rule: "ANY Writers"
+          Rule: """"""""ANY Writers""""""""
         Admins:
           Type: ImplicitMeta
-          Rule: "MAJORITY Admins"
+          Rule: """"""""MAJORITY Admins""""""""
         Endorsement:
           Type: ImplicitMeta
-          Rule: "MAJORITY Endorsement"
+          Rule: """"""""MAJORITY Endorsement""""""""
         LifecycleEndorsement:
           Type: ImplicitMeta
-          Rule: "ANY Endorsement"
+          Rule: """"""""ANY Endorsement""""""""
       Capabilities:
         V2_0: true

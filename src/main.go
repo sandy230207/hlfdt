@@ -9,6 +9,7 @@ import (
 	dockerNet "fabric-tool/src/docker-net"
 	serverconfig "fabric-tool/src/fabric-ca-server-config"
 	fabricNetwork "fabric-tool/src/fabric-network"
+	"fabric-tool/src/monitor"
 	"fabric-tool/src/utils"
 	"fmt"
 	"log"
@@ -21,7 +22,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name: "fabric-tool",
+		Name: "hlfdt",
 		Commands: []cli.Command{
 			{
 				Name:            "generate",
@@ -46,6 +47,19 @@ func main() {
 				Name:   "down",
 				Usage:  "Stop and clear Hyperledger Fabric Network",
 				Action: networkDown,
+			},
+			{
+				Name:            "ui",
+				Usage:           "Lookup the status of Hyperledger Fabric Network",
+				Action:          monitor.RunMonitor,
+				SkipFlagParsing: true,
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "port",
+						Value: "8888",
+						Usage: "The port number that monitor will use",
+					},
+				},
 			},
 		},
 	}
@@ -138,15 +152,19 @@ func generate(c *cli.Context) error {
 		return err
 	}
 	fmt.Println("Analysing Config...")
-	txConf, err := configtx.ConvertConf(rConf)
-	if err != nil {
-		return err
+	for _, channel := range rConf.Channels {
+		txConf, err := configtx.ConvertConf(rConf, channel.Name)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Generating configtx.yaml...")
+		_ = os.Mkdir("./configtx-"+channel.Name, 0777)
+		err = utils.WriteYaml(txConf, "./configtx-"+channel.Name+"/configtx.yaml")
+		if err != nil {
+			return err
+		}
 	}
-	fmt.Println("Generating configtx.yaml...")
-	err = utils.WriteYaml(txConf, "./configtx/configtx.yaml")
-	if err != nil {
-		return err
-	}
+
 	err = utils.ConvertConfigtx("./configtx/configtx.yaml")
 	if err != nil {
 		return err
@@ -263,15 +281,18 @@ func generate(c *cli.Context) error {
 		return err
 	}
 	fmt.Println("Analysing Config...")
-	configCreateChannel, err := fabricNetwork.GenerateCreateChannel(rConf)
-	if err != nil {
-		return err
+	for _, channel := range rConf.Channels {
+		configCreateChannel, err := fabricNetwork.GenerateCreateChannel(rConf, channel.Name)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Generating createChannel.sh...")
+		err = utils.WriteSh(configCreateChannel, "./scripts/createChannel-"+channel.Name+".sh")
+		if err != nil {
+			return err
+		}
 	}
-	fmt.Println("Generating createChannel.sh...")
-	err = utils.WriteSh(configCreateChannel, "./scripts/createChannel.sh")
-	if err != nil {
-		return err
-	}
+
 	fmt.Println("Analysing Config...")
 	configCCPGenerate, err := fabricNetwork.GenerateCCPGenerate("./organizations/ccp-generate-script.sh", rConf)
 	if err != nil {

@@ -11,6 +11,18 @@ Channels:
         Policy: "MAJORITY Endorsement"
       - Name: LifecycleEndorsement
         Policy: "ANY Endorsement"
+  - Name: secondchannel
+    Policies:
+      - Name: Readers
+        Policy: "ANY Readers"
+      - Name: Writers
+        Policy: "ANY Writers"
+      - Name: Admins
+        Policy: "MAJORITY Admins"
+      - Name: Endorsement
+        Policy: "MAJORITY Endorsement"
+      - Name: LifecycleEndorsement
+        Policy: "ANY Endorsement"
 Chaincodes:
   - Name: basic
     Language: go
@@ -44,6 +56,7 @@ Organizations:
         Policy: OR(org1.peer)
     Channels:
       - mychannel
+      - secondchannel
   - Name: org2
     Type: peerOrg
     EndorsingPeers:
