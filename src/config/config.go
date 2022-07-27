@@ -157,6 +157,9 @@ func CheckConf(conf *Config) (*Config, error) {
 		} else {
 			existCertificateAuthorities[v.Name] = true
 		}
+		if domainArr := strings.Split(v.Name, "."); len(domainArr) != 4 {
+			return nil, fmt.Errorf("CertificateAuthorities: CA name '%v' should contains 4 sections. It should be like <CA>.<ORG>.<SLD>.<TLD>. ex. \"ca.org1.example.com.\"", v.Name)
+		}
 		reg, err := regexp.Compile("[^a-z0-9.]+")
 		if err != nil {
 			return nil, err
@@ -252,6 +255,9 @@ func checkPeer(orgType string, peerType string, peers []Peer) error {
 			return fmt.Errorf("The port of peer '%v' is not between 1 and 65535.", peer.Port)
 		}
 		if orgType == "peerOrg" {
+			if domainArr := strings.Split(peer.Name, "."); len(domainArr) != 4 {
+				return fmt.Errorf("Peer name '%v' should contains 4 sections. It should be like <PEER>.<ORG>.<SLD>.<TLD>. ex. \"peer0.org1.example.com.\"", peer.Name)
+			}
 			if peer.DBPort == "" {
 				return fmt.Errorf("DB port cannot be empty.")
 			}
