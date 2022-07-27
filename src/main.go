@@ -163,11 +163,10 @@ func generate(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	err = utils.ConvertConfigtx("./configtx/configtx.yaml")
-	if err != nil {
-		return err
+		err = utils.ConvertConfigtx("./configtx-" + channel.Name + "/configtx.yaml")
+		if err != nil {
+			return err
+		}
 	}
 	fmt.Println("Analysing Config...")
 	caConf, err := dockerCA.ConvertConf(rConf)
